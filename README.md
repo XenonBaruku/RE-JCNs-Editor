@@ -1,11 +1,11 @@
-# RE JCNS Editor #
-RE JCNS Editor is a Blender (3.0+) addon for editing JCNs (Joint Constraints) files from most RE Engine games. <br>
+# RE JCNs Editor #
+RE JCNs Editor is a Blender (3.0+) addon for editing JCNs (Joint Constraints) files from most RE Engine games. <br>
 This addon is currently work in progress. Some features are not available.<br>
 
 Research about JCNs (and other files) can be found [here](https://github.com/XenonBaruku/MHWs-Research-Templates)
 
 # Current Status
-## Game
+## Games
 | JCNs Version | Game                            | Import                   | Export    |
 | ------       | ------                          | ------                   | ------    |
 | 11           | Resident Evil 2 Remake          | :heavy_exclamation_mark: | :x:       |
@@ -15,12 +15,13 @@ Research about JCNs (and other files) can be found [here](https://github.com/Xen
 | 22           | Resident Evil 4 Remake          | :heavy_exclamation_mark: | :x:       |
 | 29           | Monster Hunter Wilds            | :heavy_exclamation_mark: | :x:       |
 
-## File Type
+## File Types
 | Type         | Description                     | Import                   | Export    |
 | ------       | ------                          | ------                   | ------    |
 | _HJ/JC/drv   | General constraints             | :heavy_exclamation_mark: | :x:       |
 | _BS          | BlendShape constraints          | :heavy_exclamation_mark: | :x:       |
 | _RS          | ?                               | :heavy_exclamation_mark: | :x:       |
+| _RE          | ?                               | :heavy_exclamation_mark: | :x:       |
 | _MB/Mblend   | MaterialBlend constraints       | :heavy_exclamation_mark: | :x:       |
 | _SC/CS       | Simple constraints (?)          | :x:                      | :x:       |
 | _Aim         | Aim constraints                 | :x:                      | :x:       |
