@@ -54,6 +54,12 @@ class JCNS_Import(bpy.types.Operator, ImportHelper):
         JCNS_IO_Panel.draw_general_options(self, import_menu=True)
         JCNS_IO_Panel.draw_advanced_options(self, import_menu=True)
 
+        try:
+            if bpy.data.armatures.get(bpy.context.object.name):
+                self.armature = bpy.context.object.name
+        except:
+            pass
+
     def execute(self, context) -> None:
         options = {
             "armature": self.armature, 

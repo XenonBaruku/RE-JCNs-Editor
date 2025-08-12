@@ -5,6 +5,9 @@ This addon is currently work in progress. Some features are not available.<br>
 Research about JCNs (and other files) can be found [here](https://github.com/XenonBaruku/MHWs-Research-Templates)
 
 # Current Status
+VERSION: 0.0.2 - dev
+(:heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented)
+
 ## Games
 | JCNs Version | Game                            | Import                   | Export    |
 | ------       | ------                          | ------                   | ------    |
@@ -23,8 +26,9 @@ Research about JCNs (and other files) can be found [here](https://github.com/Xen
 | _RS          | ?                               | :heavy_exclamation_mark: | :x:       |
 | _RE          | ?                               | :heavy_exclamation_mark: | :x:       |
 | _MB/Mblend   | MaterialBlend constraints       | :heavy_exclamation_mark: | :x:       |
-| _SC/CS       | Simple constraints (?)          | :x:                      | :x:       |
+| _SC/CS       | Simple constraints (?)          | :heavy_check_mark:       | :x:       |
 | _Aim         | Aim constraints                 | :x:                      | :x:       |
 
 # Credits
-Some codes in this addon come from [RE-Mesh-Editor](https://github.com/NSACloud/RE-Mesh-Editor) and [RE-Chain-Editor](https://github.com/NSACloud/RE-Chain-Editor) by [NSACloud](https://github.com/NSACloud).
+ * Some codes in this addon come from [RE-Mesh-Editor](https://github.com/NSACloud/RE-Mesh-Editor) and [RE-Chain-Editor](https://github.com/NSACloud/RE-Chain-Editor) by [NSACloud](https://github.com/NSACloud).
+ * Thank [Feuleur](https://github.com/Feuleur) for providing some infomation about constraints and the codes to generate 32-bit MurmurHash 3.

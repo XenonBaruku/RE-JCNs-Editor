@@ -1,5 +1,6 @@
 import bpy
 import struct
+import numpy as np
 #import re
 
 class Vec3:
@@ -56,6 +57,8 @@ class BinaryUtils:
     
 class HashUtils:
     def generate_murmurhash_32(key, seed = 0xFFFFFFFF):
+        if type(key) == str:
+            key = key.encode("utf-16LE")
         def fmix(h):
             h ^= h >> 16
             h  = (h * 0x85ebca6b) & seed
@@ -107,33 +110,38 @@ class BlenderUtils:
                 bpy.context.scene.collection.children.link(collection)
         return bpy.data.collections[collectionName]
 
-    def add_empty(name, propertyList, parent = None, collection = None):
-        obj = bpy.data.objects.new( name, None )
-        obj.empty_display_size = .10
-        obj.empty_display_type = 'PLAIN_AXES'
-        obj.parent = parent
-        for property in propertyList:
-            obj[property[0]] = property[1]
-            
-        if collection == None:
-            collection = bpy.context.scene.collection
-        else:
-            try:
-                # JCNS Specific
-                parentCollection = collection.split(".")[0]
-                for suffix in JCNS_suffix_List:
-                    if suffix in parentCollection.upper():
-                        parentCollection = parentCollection.split(suffix)[0]
-                        parentCollection = parentCollection.split(suffix.casefold())[0]
-                parentCollection = bpy.data.collections.get(parentCollection)
+    def getJCNSCollection(CollectionName):
+        try:
+            # JCNS Specific
+            parentCollection = CollectionName.split(".")[0]
+            for suffix in JCNS_suffix_List:
+                if suffix in parentCollection.upper():
+                    parentCollection = parentCollection.split(suffix)[0]
+                    parentCollection = parentCollection.split(suffix.casefold())[0]
+            parentCollection = bpy.data.collections.get(parentCollection)
 
-                collection = BlenderUtils.getCollection(collection, parentCollection)
-            except: 
-                collection = BlenderUtils.getCollection(collection)
+            collection = BlenderUtils.getCollection(CollectionName, parentCollection)
+        except: 
+            collection = BlenderUtils.getCollection(CollectionName)
+        return collection
 
-        collection.objects.link(obj)
+    def add_empty(name, propertyList, parent = None, collection = None, display_size = 0.01, display_type = 0):
+            type_list = ['PLAIN_AXES', 'ARROWS', 'CIRCLE', 'CUBE', 'SPHERE']
+            obj = bpy.data.objects.new( name, None )
+            obj.empty_display_size = display_size
+            obj.empty_display_type = type_list[display_type]
+            obj.parent = parent
+            for property in propertyList:
+                obj[property[0]] = property[1]
+                
+            if collection == None:
+                collection = bpy.context.scene.collection
+            else:
+                collection = BlenderUtils.getJCNSCollection(collection)
 
-        return obj
+            collection.objects.link(obj)
+
+            return obj
     
     def lockObjTransforms(obj,lockLocation = True,lockRotation = True,lockScale = True):
         if lockLocation:
@@ -167,6 +175,20 @@ class BlenderUtils:
             constraint.max_y = 1.0
             constraint.min_z = 1.0
             constraint.max_z = 1.0
+
+    def getBoneGlobalCoordinates(bone_name, armature_name):
+        R = bpy.data.objects[armature_name].matrix_world.to_3x3()
+        R = np.array(R)
+
+        t = bpy.data.objects[armature_name].matrix_world.translation
+        t = np.array(t) 
+
+        local_location = bpy.data.objects[armature_name].data.bones[bone_name].head_local
+        local_location = np.array(local_location)
+
+        loc = np.dot(R, local_location) + t 
+
+        return [loc[0], loc[1], loc[2]]
 
 Version2GameDict = {
     11: "RE2R",
