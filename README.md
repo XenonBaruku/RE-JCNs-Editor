@@ -1,11 +1,11 @@
 # RE JCNs Editor #
 RE JCNs Editor is a Blender (3.0+) addon for editing JCNs (Joint Constraints) files from most RE Engine games. <br>
-This addon is currently work in progress. Some features are not available.<br>
+This addon is currently work in progress. Some features are not available. <br>
 
 Research about JCNs (and other files) can be found [here](https://github.com/XenonBaruku/MHWs-Research-Templates)
 
 # Current Status
-VERSION: 0.0.3 - dev
+VERSION: 0.0.3 - dev <br>
 (:heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented)
 
 ## Games
