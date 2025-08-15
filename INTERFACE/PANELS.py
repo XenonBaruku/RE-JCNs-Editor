@@ -57,7 +57,6 @@ class JCNS_PT_Constraint_Settings_Panel(Panel):
     bl_category = "JCNS Constraint Settings"
     bl_context = "object"
 
-
     @classmethod
     def poll(self,context):
         return context and context.object.mode == "OBJECT" and context.active_object and context.active_object.get("TYPE",None) == "JCNS_ConstraintSettings"
@@ -72,8 +71,29 @@ class JCNS_PT_Constraint_Settings_Panel(Panel):
         col2 = split.column()
         col2.alignment='CENTER'
         col2.use_property_split = True
-        col2.prop(constraint_settings, "Name")
-        col2.prop(constraint_settings, "MaterialProperty") 
+        col2.prop(constraint_settings, "Type")
+        if int(constraint_settings.Type) == 0:
+            col2.prop_search(constraint_settings, "ArmatureName", context.scene, "objects")
+            armature = bpy.data.armatures.get(constraint_settings.ArmatureName)
+            if (not armature) or armature == "":
+                col2.label(icon = "ERROR",text="Invalid armature.")
+            bone = None
+            try:
+                if armature:
+                    col2.prop_search(constraint_settings, "BoneName", armature, "bones")
+                    bone = bpy.data.armatures.get(constraint_settings.ArmatureName).bones[constraint_settings.BoneName]
+            except:
+                pass
+            if (not bone) or bone == "":
+                col2.prop(constraint_settings, "Name")
+                if armature and armature != "":
+                    col2.label(icon = "ERROR",text="Couldn't found specified bone in armature.")
+        elif int(constraint_settings.Type) == 1:
+            col2.prop(constraint_settings, "Name")
+            col2.prop(constraint_settings, "Property")
+        else:
+            col2.prop(constraint_settings, "Name")
+        col2.separator()
         col2.prop(constraint_settings, "TransformationType")
         col2.prop(constraint_settings, "TransformationAxis")
         col2.separator()
@@ -84,6 +104,36 @@ class JCNS_PT_Constraint_Settings_Panel(Panel):
         col2.separator()
         col2.prop(constraint_settings, "UNKNOWN_5")
 
+class JCNS_PT_Constraint_Extra_Info_Panel(Panel):
+    bl_label = "JCNS Constraint Extra Info"
+    bl_idname = "JCNS_PT_Constraint_Extra_Info_Panel"
+    bl_space_type = "PROPERTIES"   
+    bl_region_type = "WINDOW"
+    bl_category = "JCNS Constraint Extra Info"
+    bl_context = "object"
+
+    @classmethod
+    def poll(self,context):
+        return context and context.object.mode == "OBJECT" and context.active_object and context.active_object.get("TYPE",None) == "JCNS_ConstraintExtraInfo"
+
+    def draw(self, context):
+        layout = self.layout
+        object = context.active_object
+        constraint_extra_info = object.constraint_extra_info
+        
+        split = layout.split(factor=0.01)
+        col1 = split.column()
+        col2 = split.column()
+        col2.alignment='CENTER'
+        col2.use_property_split = True
+        col2.prop(constraint_extra_info, "UNKNOWN_1")
+        col2.prop(constraint_extra_info, "UNKNOWN_2")
+        col2.separator()
+        col2.prop(constraint_extra_info, "UNKNOWN_3")
+        col2.prop(constraint_extra_info, "UNKNOWN_4")
+        col2.prop(constraint_extra_info, "UNKNOWN_5")
+        col2.prop(constraint_extra_info, "UNKNOWN_6")
+
 class JCNS_PT_ConstraintSrc_Settings_Panel(Panel):
     bl_label = "JCNS Constraint Source Settings"
     bl_idname = "JCNS_PT_ConstraintSrc_Settings_Panel"
@@ -91,7 +141,6 @@ class JCNS_PT_ConstraintSrc_Settings_Panel(Panel):
     bl_region_type = "WINDOW"
     bl_category = "JCNS Constraint Source Settings"
     bl_context = "object"
-
 
     @classmethod
     def poll(self,context):
@@ -107,7 +156,27 @@ class JCNS_PT_ConstraintSrc_Settings_Panel(Panel):
         col2 = split.column()
         col2.alignment='CENTER'
         col2.use_property_split = True
-        col2.prop(constraint_src_settings, "Name")
+        col2.prop(constraint_src_settings, "Type")
+        if int(constraint_src_settings.Type) == 0:
+            armature = bpy.data.armatures.get(constraint_src_settings.ArmatureName)
+            if (not armature) or armature == "":
+                col2.label(icon = "ERROR",text="Invalid armature.")
+            bone = None
+            try:
+                if armature:
+                    col2.prop_search(constraint_src_settings, "BoneName", armature, "bones")
+                    bone = bpy.data.armatures.get(constraint_src_settings.ArmatureName).bones[constraint_src_settings.BoneName]
+                else:
+                    col2.label(icon = "ERROR",text="Constraint armature is not set.")
+            except:
+                pass
+            if (not bone) or bone == "":
+                col2.prop(constraint_src_settings, "Name")
+                if armature and armature != "":
+                    col2.label(icon = "ERROR",text="Couldn't found specified bone in armature.")
+        else:
+            col2.prop(constraint_src_settings, "Name")
+        col2.separator()
         #col2.prop(constraint_src_settings, "TransformationType")
         col2.prop(constraint_src_settings, "TransformationAxis")
         col2.separator()
@@ -115,14 +184,49 @@ class JCNS_PT_ConstraintSrc_Settings_Panel(Panel):
         col2.prop(constraint_src_settings, "ToRange")
         col2.separator()
         col2.prop(constraint_src_settings, "UNKNOWN_0")
+        col2.separator()
         col2.prop(constraint_src_settings, "UNKNOWN_1")
         col2.prop(constraint_src_settings, "UNKNOWN_2")
         col2.prop(constraint_src_settings, "UNKNOWN_3")
         col2.prop(constraint_src_settings, "UNKNOWN_4")
         col2.prop(constraint_src_settings, "UNKNOWN_5")
         col2.prop(constraint_src_settings, "UNKNOWN_6")
-        col2.separator()
         col2.prop(constraint_src_settings, "UNKNOWN_7")
+        col2.separator()
+        col2.prop(constraint_src_settings, "UNKNOWN_8")
+
+class JCNS_PT_ConstraintSrc_Extra_Info_Panel(Panel):
+    bl_label = "JCNS Constraint Source Extra Info"
+    bl_idname = "JCNS_PT_ConstraintSrc_Extra_Info_Panel"
+    bl_space_type = "PROPERTIES"   
+    bl_region_type = "WINDOW"
+    bl_category = "JCNS Constraint Source Extra Info"
+    bl_context = "object"
+
+    @classmethod
+    def poll(self,context):
+        return context and context.object.mode == "OBJECT" and context.active_object and context.active_object.get("TYPE",None) == "JCNS_ConstraintSrcExtraInfo"
+
+    def draw(self, context):
+        layout = self.layout
+        object = context.active_object
+        constraint_src_extra_info = object.constraint_src_extra_info
+        
+        split = layout.split(factor=0.01)
+        col1 = split.column()
+        col2 = split.column()
+        col2.alignment='CENTER'
+        col2.use_property_split = True
+        col2.prop(constraint_src_extra_info, "UNKNOWN_1")
+        col2.prop(constraint_src_extra_info, "UNKNOWN_2")
+        col2.prop(constraint_src_extra_info, "UNKNOWN_3")
+        col2.prop(constraint_src_extra_info, "UNKNOWN_4")
+        col2.prop(constraint_src_extra_info, "UNKNOWN_5")
+        col2.prop(constraint_src_extra_info, "UNKNOWN_6")
+        col2.separator()
+        col2.prop(constraint_src_extra_info, "UNKNOWN_7")
+        
+
 
 class JCNS_PT_SimpleCns_Settings_Panel(Panel):
     bl_label = "JCNS SimpleConstraint Settings"
@@ -131,7 +235,6 @@ class JCNS_PT_SimpleCns_Settings_Panel(Panel):
     bl_region_type = "WINDOW"
     bl_category = "JCNS SimpleConstraint Settings"
     bl_context = "object"
-
 
     @classmethod
     def poll(self,context):
@@ -147,20 +250,23 @@ class JCNS_PT_SimpleCns_Settings_Panel(Panel):
         col2 = split.column()
         col2.alignment='CENTER'
         col2.use_property_split = True
-        col2.prop_search(simplecns_settings, "Armature", context.scene, "objects", text="Armature")
-        armature = bpy.data.armatures.get(simplecns_settings.Armature)
+        col2.prop_search(simplecns_settings, "ArmatureName", context.scene, "objects")
+        armature = bpy.data.armatures.get(simplecns_settings.ArmatureName)
+        if (not armature) or armature == "":
+                col2.label(icon = "ERROR",text="Invalid armature.")
         bone = None
         try:
             if armature:
-                col2.prop_search(simplecns_settings, "Bone", armature, "bones")
-                bone = bpy.data.armatures.get(simplecns_settings.Armature).bones[simplecns_settings.Bone]
+                col2.prop_search(simplecns_settings, "BoneName", armature, "bones")
+                bone = bpy.data.armatures.get(simplecns_settings.ArmatureName).bones[simplecns_settings.BoneName]
         except:
             pass
         #col2.prop(simplecns_settings, "Bone") 
         if (not bone) or bone == "":
             col2.prop(simplecns_settings, "Hash")
+            if armature and armature != "":
+                col2.label(icon = "ERROR",text="Couldn't found specified bone in armature.")
         
-
 class JCNS_PT_SimpleCnsSrc_Settings_Panel(Panel):
     bl_label = "JCNS SimpleConstraint Source Settings"
     bl_idname = "JCNS_PT_SimpleCnsSrc_Settings_Panel"
@@ -168,7 +274,6 @@ class JCNS_PT_SimpleCnsSrc_Settings_Panel(Panel):
     bl_region_type = "WINDOW"
     bl_category = "JCNS SimpleConstraint Settings"
     bl_context = "object"
-
 
     @classmethod
     def poll(self,context):
@@ -184,17 +289,21 @@ class JCNS_PT_SimpleCnsSrc_Settings_Panel(Panel):
         col2 = split.column()
         col2.alignment='CENTER'
         col2.use_property_split = True
-        armature = bpy.data.armatures.get(simplecns_src_settings.Armature)
+        armature = bpy.data.armatures.get(simplecns_src_settings.ArmatureName)
+        if (not armature) or armature == "":
+                col2.label(icon = "ERROR",text="Invalid armature.")
         bone = None
         try:
             if armature:
-                col2.prop_search(simplecns_src_settings, "Bone", armature, "bones")
-                bone = bpy.data.armatures.get(simplecns_src_settings.Armature).bones[simplecns_src_settings.Bone]
+                col2.prop_search(simplecns_src_settings, "BoneName", armature, "bones")
+                bone = bpy.data.armatures.get(simplecns_src_settings.ArmatureName).bones[simplecns_src_settings.BoneName]
             else:
                 col2.label(icon = "ERROR",text="Constraint armature is not set.")
         except:
             pass
         if (not bone) or bone == "":
             col2.prop(simplecns_src_settings, "Hash")
+            if armature and armature != "":
+                col2.label(icon = "ERROR",text="Couldn't found specified bone in armature.")
         col2.separator()
         col2.prop(simplecns_src_settings, "Weight")

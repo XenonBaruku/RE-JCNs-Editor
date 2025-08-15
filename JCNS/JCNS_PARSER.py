@@ -59,12 +59,12 @@ class FileJCNS:
         self.SimpleCnsHashList    =  []
         self.AimConstraintList    =  []
 
-        self.Armature             =  ""
+        self.ArmatureName         =  ""
 
 
-    def read(self, FileBuffer: FileBufferJCNS, armature=None):
-        if armature:
-            self.Armature       =  armature
+    def read(self, FileBuffer: FileBufferJCNS, ArmatureName=None):
+        if ArmatureName:
+            self.ArmatureName   =  ArmatureName
         self.Version            =  BinaryUtils.readUInt32(FileBuffer)
         self.Signature          =  BinaryUtils.readUInt32(FileBuffer)
         if not self.Version in Version2GameDict and self.Signature == 1936614250: 
@@ -114,11 +114,11 @@ class FileJCNS:
         FileBuffer.seek(self.ExtraJointEntry)
         self.ExtraJointList    =  [ ExtraJointInfo().read(FileBuffer) for _ in range(self.ExtraJointCount) ]
         FileBuffer.seek(self.ConstraintEntry)
-        self.ConstraintList    =  [ ConstraintInfo().read(FileBuffer) for _ in range(self.ConstraintCount) ]
+        self.ConstraintList    =  [ ConstraintInfo().read(FileBuffer, self.ArmatureName) for _ in range(self.ConstraintCount) ]
         FileBuffer.seek(self.SimpleCnsHashEntry)
         self.SimpleCnsHashList =  [ BinaryUtils.readUInt32(FileBuffer) for _ in range(self.SimpleCnsHashCount) ]
         FileBuffer.seek(self.SimpleCnsTableEntry)
-        self.SimpleCnsList     =  [ SimpleConstraint().read(FileBuffer, self.SimpleCnsHashList, self.Armature) for _ in range(self.SimpleCnsCount) ]
+        self.SimpleCnsList     =  [ SimpleConstraint().read(FileBuffer, self.SimpleCnsHashList, self.ArmatureName) for _ in range(self.SimpleCnsCount) ]
 
     def printDebugInfo(self):
         print(
@@ -159,8 +159,8 @@ class ConstraintInfo:
         self.StandaloneCnsInfoOffset  =  0
         self.SourceTableOffset        =  0
 
-        self.ObjectName               =  ""
-        self.MaterialProperty         =  ""
+        self.Name                     =  ""
+        self.Property                 =  ""
         
         self.StandaloneCnsInfoCount   =  0
         self.SourceCount              =  0
@@ -176,15 +176,19 @@ class ConstraintInfo:
 
         self.ExtraInfoList            =  []
         self.SourceList               =  []
+        self.Type                     =  2
+        self.ArmatureName             =  ""
+        self.BoneName                 =  ""
 
-    def read(self, FileBuffer: FileBufferJCNS):
+    def read(self, FileBuffer: FileBufferJCNS, ArmatureName = None):
+        self.ArmatureName        =  ArmatureName
         self.ExtraInfoOffset     =  BinaryUtils.readUInt64(FileBuffer)
         self.SourceInfoOffset    =  BinaryUtils.readUInt64(FileBuffer)
-        self.ObjectName          =  BinaryUtils.readWString(FileBuffer, isOffset=True)
+        self.Name                =  BinaryUtils.readWString(FileBuffer, isOffset=True)
         #print("Object Name: {}".format(self.ObjectName))
         if (FileBuffer.version >= 16):
-            self.MaterialProperty    =  BinaryUtils.readWString(FileBuffer, isOffset=True)
-            #print("Material Property: {}".format(self.MaterialProperty))
+            self.Property        =  BinaryUtils.readWString(FileBuffer, isOffset=True)
+            #print("Material Property: {}".format(self.Property))
         FileBuffer.cursor += 8
         self.ExtraInfoCount      =  BinaryUtils.readUInt8(FileBuffer)
         self.SourceCount         =  BinaryUtils.readUInt8(FileBuffer)
@@ -196,18 +200,24 @@ class ConstraintInfo:
         self.UNKNOWN_4           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_5           =  Vec4(BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer))
         self.EndPos              =  FileBuffer.tell() + 16 * (FileBuffer.version >= 21)
-
         if FileBuffer.version == 29:
             FileBuffer.cursor += 9
             self.UNKNOWN_6       =  BinaryUtils.readUInt8(FileBuffer)
+        
+        if self.Property and self.Property != "":
+            self.Type  =  1
+        elif self.ArmatureName and self.ArmatureName != "":
+            armature = bpy.data.armatures.get(self.ArmatureName)
+            if armature and armature.bones.get(self.Name):
+                self.BoneName = self.Name
+                self.Type = 0
+
+
         FileBuffer.seek(self.ExtraInfoOffset)
-        #for _ in range(self.ExtraInfoCount):
-        #    ExtraInfo = ExtraConstraintInfo()
-        #    ExtraInfo.read(FileBuffer)
-        #    self.ExtraInfoList.append(ExtraInfo)
+        self.ExtraInfoList   =  [ ExtraConstraintInfo().read(FileBuffer) for _ in range(self.ExtraInfoCount) ]
         FileBuffer.seek(self.SourceInfoOffset)
         if FileBuffer.version >= 16:
-            self.SourceList  =  [ ConstraintSource_V2().read(FileBuffer) for _ in range(self.SourceCount) ]
+            self.SourceList  =  [ ConstraintSource_V2().read(FileBuffer, self.ArmatureName) for _ in range(self.SourceCount) ]
         else:
             self.SourceList  =  [ ConstraintSource_V1().read(FileBuffer) for _ in range(self.SourceCount) ]
 
@@ -233,6 +243,8 @@ class ExtraConstraintInfo:
         self.UNKNOWN_5  =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_6  =  BinaryUtils.readUInt8(FileBuffer)
 
+        return self
+
 class ConstraintSource_V2:
     def __init__(self):
         self.ExtraInfoOffset     =  0
@@ -253,30 +265,39 @@ class ConstraintSource_V2:
         self.UNKNOWN_7           =  Vec4()
 
         self.ExtraInfoList       =  []
+        self.Type                =  1
+        self.ArmatureName        =  ""
+        self.BoneName            =  ""
 
-    def read(self, FileBuffer: FileBufferJCNS):
+    def read(self, FileBuffer: FileBufferJCNS, ArmatureName = None):
+        self.ArmatureName        =  ArmatureName
         self.ExtraInfoOffset     =  BinaryUtils.readUInt64(FileBuffer)
         self.Name                =  BinaryUtils.readWString(FileBuffer, isOffset=True)
         FileBuffer.cursor += 4
-        self.ExtraInfoCount      =  BinaryUtils.readUInt32(FileBuffer)
-        self.UNKNOWN_0           =  BinaryUtils.readUInt8(FileBuffer)
+        self.ExtraInfoCount      =  BinaryUtils.readUInt16(FileBuffer)
+        self.UNKNOWN_0           =  BinaryUtils.readUInt16(FileBuffer)
         self.UNKNOWN_1           =  BinaryUtils.readUInt8(FileBuffer)
-        self.TransformationAxis  =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_2           =  BinaryUtils.readUInt8(FileBuffer)
+        self.TransformationAxis  =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_3           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_4           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_5           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_6           =  BinaryUtils.readUInt8(FileBuffer)
+        self.UNKNOWN_7           =  BinaryUtils.readUInt8(FileBuffer)
         self.FromRange           =  [BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer)]
         self.ToRange             =  [BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer)]
-        self.UNKNOWN_7           =  Vec4(BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer))
+        self.UNKNOWN_8           =  Vec4(BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer))
         self.EndPos              =  FileBuffer.tell()
 
+        if self.ArmatureName and self.ArmatureName != "":
+            armature = bpy.data.armatures.get(self.ArmatureName)
+            if armature and armature.bones.get(self.Name):
+                self.BoneName = self.Name
+                self.Type = 0
+        
         FileBuffer.seek(self.ExtraInfoOffset)
-        for _ in range(self.ExtraInfoCount):
-            ExtraInfo = ExtraSourceInfo()
-            ExtraInfo.read(FileBuffer)
-            self.ExtraInfoList.append(ExtraInfo)
+        
+        self.ExtraInfoList   =  [ ExtraConstraintSrcInfo().read(FileBuffer) for _ in range(self.ExtraInfoCount) ]
         
         FileBuffer.seek(self.EndPos)
         return self
@@ -299,6 +320,10 @@ class ConstraintSource_V1:
         self.UNKNOWN_6           =  0
         self.UNKNOWN_7           =  Vec4()
 
+        self.Type                =  1
+        self.ArmatureName        =  ""
+        self.BoneName            =  ""
+
     def read(self, FileBuffer: FileBufferJCNS):
         self.Name                =  BinaryUtils.readWString(FileBuffer, isOffset=True)
         FileBuffer.cursor += 4
@@ -320,7 +345,7 @@ class ConstraintSource_V1:
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
-class ExtraSourceInfo: 
+class ExtraConstraintSrcInfo: 
     def __init__(self):
         self.UNKNOWN_1  =  0.0
         self.UNKNOWN_2  =  0.0
@@ -338,32 +363,34 @@ class ExtraSourceInfo:
         self.UNKNOWN_6  =  BinaryUtils.readFloat32(FileBuffer)
         self.UNKNOWN_7  =  BinaryUtils.readUInt32(FileBuffer)
 
+        return self
+
 class SimpleConstraint:
     def __init__(self):
-        self.SourceOffset =  0
-        self.Hash         =  0
-        self.SourceCount  =  0
+        self.SourceOffset  =  0
+        self.Hash          =  0
+        self.SourceCount   =  0
 
         # Not in file
-        self.SourceList   =  []
-        self.Armature     =  ""
-        self.Bone         =  ""
+        self.SourceList    =  []
+        self.ArmatureName  =  ""
+        self.BoneName      =  ""
 
-    def read(self, FileBuffer: FileBufferJCNS, HashList, armature):
-        self.Armature      =  armature
+    def read(self, FileBuffer: FileBufferJCNS, HashList, ArmatureName):
+        self.ArmatureName  =  ArmatureName
         self.SourceOffset  =  BinaryUtils.readUInt64(FileBuffer)
         self.Hash          =  BinaryUtils.readUInt32(FileBuffer)
         self.SourceCount   =  BinaryUtils.readUInt32(FileBuffer)
 
         ReturnPos = FileBuffer.tell()
         FileBuffer.seek(self.SourceOffset)
-        self.SourceList  =  [ SimpleConstraintSource().read(FileBuffer, HashList, self.Armature) for _ in range(self.SourceCount) ]
+        self.SourceList  =  [ SimpleConstraintSource().read(FileBuffer, HashList, self.ArmatureName) for _ in range(self.SourceCount) ]
         FileBuffer.seek(ReturnPos)
 
         try:
-            for bone in bpy.data.armatures.get(self.Armature).bones:
+            for bone in bpy.data.armatures.get(self.ArmatureName).bones:
                 if HashUtils.generate_murmurhash_32(bone.name) == self.Hash:
-                    self.Bone = bone.name
+                    self.BoneName = bone.name
                     break
         except:
             pass
@@ -372,23 +399,23 @@ class SimpleConstraint:
 
 class SimpleConstraintSource:
     def __init__(self):
-        self.Index     =  0
-        self.Weight    =  0
+        self.Index         =  0
+        self.Weight        =  0
 
-        self.Hash      =  0
-        self.Armature  =  ""
-        self.Bone      =  ""
+        self.Hash          =  0
+        self.ArmatureName  =  ""
+        self.BoneName      =  ""
 
-    def read(self, FileBuffer: FileBufferJCNS, HashList, armature):
-        self.Armature  =  armature
-        self.Index     =  BinaryUtils.readUInt32(FileBuffer)
-        self.Weight    =  BinaryUtils.readFloat32(FileBuffer)
+    def read(self, FileBuffer: FileBufferJCNS, HashList, ArmatureName):
+        self.ArmatureName  =  ArmatureName
+        self.Index         =  BinaryUtils.readUInt32(FileBuffer)
+        self.Weight        =  BinaryUtils.readFloat32(FileBuffer)
 
-        self.Hash      =  HashList[self.Index]
+        self.Hash          =  HashList[self.Index]
         try:
-            for bone in bpy.data.armatures.get(self.Armature).bones:
+            for bone in bpy.data.armatures.get(self.ArmatureName).bones:
                 if HashUtils.generate_murmurhash_32(bone.name) == self.Hash:
-                    self.Bone = bone.name
+                    self.BoneName = bone.name
                     break
         except:
             pass

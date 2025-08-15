@@ -131,12 +131,14 @@ class BlenderUtils:
             obj.empty_display_size = display_size
             obj.empty_display_type = type_list[display_type]
             obj.parent = parent
+            if parent:
+                obj.matrix_parent_inverse = parent.matrix_world.inverted()
             for property in propertyList:
                 obj[property[0]] = property[1]
                 
             if collection == None:
                 collection = bpy.context.scene.collection
-            else:
+            elif type(collection) == str:
                 collection = BlenderUtils.getJCNSCollection(collection)
 
             collection.objects.link(obj)

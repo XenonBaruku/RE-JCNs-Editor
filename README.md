@@ -5,7 +5,7 @@ This addon is currently work in progress. Some features are not available.<br>
 Research about JCNs (and other files) can be found [here](https://github.com/XenonBaruku/MHWs-Research-Templates)
 
 # Current Status
-VERSION: 0.0.2 - dev
+VERSION: 0.0.3 - dev
 (:heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented)
 
 ## Games
@@ -18,16 +18,15 @@ VERSION: 0.0.2 - dev
 | 22           | Resident Evil 4 Remake          | :heavy_exclamation_mark: | :x:       |
 | 29           | Monster Hunter Wilds            | :heavy_exclamation_mark: | :x:       |
 
-## File Types
-| Type         | Description                     | Import                   | Export    |
-| ------       | ------                          | ------                   | ------    |
-| _HJ/JC/drv   | General constraints             | :heavy_exclamation_mark: | :x:       |
-| _BS          | BlendShape constraints          | :heavy_exclamation_mark: | :x:       |
-| _RS          | ?                               | :heavy_exclamation_mark: | :x:       |
-| _RE          | ?                               | :heavy_exclamation_mark: | :x:       |
-| _MB/Mblend   | MaterialBlend constraints       | :heavy_exclamation_mark: | :x:       |
-| _SC/CS       | Simple constraints (?)          | :heavy_check_mark:       | :x:       |
-| _Aim         | Aim constraints                 | :x:                      | :x:       |
+## Structures
+| ID     | Description             | Import                   | Export    |
+| ------ | ------                  | ------                   | ------    |
+| 0      | General constraints     | :heavy_check_mark:       | :x:       |
+| 1      | Unknown joints          | :x:                      | :x:       |
+| 2      | Simple constraints (?)  | :heavy_check_mark:       | :x:       |
+| 3      | Aim constraints         | :x:                      | :x:       |
+| 4      | ?                       | :x:                      | :x:       |
+
 
 # Credits
  * Some codes in this addon come from [RE-Mesh-Editor](https://github.com/NSACloud/RE-Mesh-Editor) and [RE-Chain-Editor](https://github.com/NSACloud/RE-Chain-Editor) by [NSACloud](https://github.com/NSACloud).
