@@ -6,7 +6,7 @@ Research about JCNs (and other files) can be found [here](https://github.com/Xen
 
 # Current Status
 VERSION: 0.0.3 - dev <br>
-(:heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented)
+( :heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented )
 
 ## Games
 | JCNs Version | Game                            | Import                   | Export    |
