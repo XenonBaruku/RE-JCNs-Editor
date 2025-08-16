@@ -5,7 +5,7 @@ This addon is currently work in progress. Some features are not available. <br>
 Research about JCNs (and other files) can be found [here](https://github.com/XenonBaruku/MHWs-Research-Templates)
 
 # Current Status
-VERSION: 0.0.3 - dev <br>
+VERSION: 0.0.4 - dev <br>
 ( :heavy_check_mark: – Finished; :heavy_exclamation_mark: – Partially; :x: – Not implemented )
 
 ## Games
@@ -22,7 +22,7 @@ VERSION: 0.0.3 - dev <br>
 | ID     | Description             | Import                   | Export    |
 | ------ | ------                  | ------                   | ------    |
 | 0      | General constraints     | :heavy_check_mark:       | :x:       |
-| 1      | Unknown joints          | :x:                      | :x:       |
+| 1      | Unknown joints (?)      | :heavy_check_mark:       | :x:       |
 | 2      | Simple constraints (?)  | :heavy_check_mark:       | :x:       |
 | 3      | Aim constraints         | :x:                      | :x:       |
 | 4      | ?                       | :x:                      | :x:       |

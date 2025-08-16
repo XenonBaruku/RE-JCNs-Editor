@@ -47,7 +47,48 @@ class JCNS_IO_Panel:
             box.row().prop(panel, "ignore_references")
             box.row().prop(panel, "debug_mode")
         
+class JCNS_PT_Joint_Settings_Panel(Panel):
+    bl_label = "JCNS Joint Settings"
+    bl_idname = "JCNS_PT_Joint_Settings_Panel"
+    bl_space_type = "PROPERTIES"   
+    bl_region_type = "WINDOW"
+    bl_category = "JCNS Joint Settings"
+    bl_context = "object"
+
+    @classmethod
+    def poll(self,context):
+        return context and context.object.mode == "OBJECT" and context.active_object and context.active_object.get("TYPE",None) == "JCNS_JointSettings"
+
+    def draw(self, context):
+        layout = self.layout
+        object = context.active_object
+        joint_settings = object.joint_settings
         
+        split = layout.split(factor=0.01)
+        col1 = split.column()
+        col2 = split.column()
+        col2.alignment='CENTER'
+        col2.use_property_split = True
+        col2.prop(joint_settings, "Name")
+        col2.separator()
+        col2.prop(joint_settings, "Bone1")
+        col2.prop(joint_settings, "Bone2")
+        col2.separator()
+        col2.prop(joint_settings, "UNKNOWN_0")
+        col2.prop(joint_settings, "UNKNOWN_1")
+        col2.prop(joint_settings, "UNKNOWN_2")
+        col2.prop(joint_settings, "UNKNOWN_3")
+        if joint_settings.JointVer == 2:
+            col2.separator()
+            col2.prop(joint_settings, "UNKNOWN_4_0")
+            col2.prop(joint_settings, "UNKNOWN_4_1")
+            col2.prop(joint_settings, "UNKNOWN_4_2")
+            col2.prop(joint_settings, "UNKNOWN_4_3")
+        col2.separator()
+        col2.prop(joint_settings, "UNKNOWN_5")
+        col2.prop(joint_settings, "UNKNOWN_6")
+        col2.prop(joint_settings, "UNKNOWN_7")
+        col2.prop(joint_settings, "UNKNOWN_8")
 
 class JCNS_PT_Constraint_Settings_Panel(Panel):
     bl_label = "JCNS Constraint Settings"
@@ -191,7 +232,8 @@ class JCNS_PT_ConstraintSrc_Settings_Panel(Panel):
         col2.prop(constraint_src_settings, "UNKNOWN_4")
         col2.prop(constraint_src_settings, "UNKNOWN_5")
         col2.prop(constraint_src_settings, "UNKNOWN_6")
-        col2.prop(constraint_src_settings, "UNKNOWN_7")
+        if constraint_src_settings.SrcVer == 2:
+            col2.prop(constraint_src_settings, "UNKNOWN_7")
         col2.separator()
         col2.prop(constraint_src_settings, "UNKNOWN_8")
 

@@ -28,6 +28,25 @@ class BinaryUtils:
             FileBuffer.cursor = FileBuffer.read("Q", 8)
     def tell(FileBuffer):
         return FileBuffer.cursor
+    def erase(FileBuffer, data_size, erase_at = None):
+        if not erase_at:
+            erase_at = FileBuffer.cursor
+        for _ in range(data_size):
+            FileBuffer.data.pop(erase_at)
+    def write(FileBuffer, data_type, data_to_write = 0, write_at = None, overwrite = False):
+        if write_at:
+            CurrentPos  = FileBuffer.tell()
+            FileBuffer.seek(write_at)
+        if type(data_to_write) == list or type(data_to_write) == tuple:
+            data = struct.pack(str(len(data_to_write))+data_type, data_to_write)
+        else:
+            data = struct.pack(data_type, data_to_write)
+        if overwrite:
+            for _ in range(len(data)):
+                FileBuffer.data.pop(FileBuffer.cursor)
+        FileBuffer.data += data
+        if write_at:
+            FileBuffer.seek(CurrentPos)
 
     def readInt8(FileBuffer):    return FileBuffer.read("b", 1)
     def readUInt8(FileBuffer):   return FileBuffer.read("B", 1)
@@ -54,6 +73,34 @@ class BinaryUtils:
         if isOffset:
             FileBuffer.seek(ReturnPos)
         return WSTR
+    
+    def writeInt8    (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("b", data, writeAt, overwrite)
+    def writeUInt8   (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("B", data, writeAt, overwrite)
+    def writeInt16   (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("h", data, writeAt, overwrite)
+    def writeUInt16  (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("H", data, writeAt, overwrite)
+    def writeInt32   (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("i", data, writeAt, overwrite)
+    def writeUInt32  (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("I", data, writeAt, overwrite)
+    def writeInt64   (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("q", data, writeAt, overwrite)
+    def writeUInt64  (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("Q", data, writeAt, overwrite)
+    def writeFloat32 (FileBuffer, data, writeAt=None, overwrite=None): FileBuffer.write("f", data, writeAt, overwrite)
+    def writeWString (FileBuffer, data, writeAt=None, writeOffsetAt=None, isInsertOffset=False):
+        if writeOffsetAt and writeAt:
+            offset = writeAt
+        elif writeOffsetAt:
+            offset = FileBuffer.tell()
+
+        if writeAt:
+            FileBuffer.seek(writeAt)
+        for char in data:
+            FileBuffer.write("H", ord(char))
+        
+        if writeOffsetAt and offset:
+            CurrentPos = FileBuffer.tell()
+            FileBuffer.write("Q", data, writeOffsetAt, isInsertOffset)
+            FileBuffer.seek(CurrentPos)
+    def writePadding (FileBuffer):
+        while len(FileBuffer.data) % 16:
+            FileBuffer.write("B")
     
 class HashUtils:
     def generate_murmurhash_32(key, seed = 0xFFFFFFFF):

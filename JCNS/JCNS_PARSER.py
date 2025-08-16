@@ -22,11 +22,24 @@ class FileBufferJCNS:
             self.cursor = self.read("Q", 8)
     def tell(self):
         return self.cursor
-    def write(self, data_type, data_to_write):
+    def erase(self, data_size, erase_at = None):
+        if not erase_at:
+            erase_at = self.cursor
+        for _ in range(data_size):
+            self.data.pop(erase_at)
+    def write(self, data_type, data_to_write = 0, write_at = None, overwrite = False):
+        if write_at:
+            CurrentPos  = self.tell()
+            self.seek(write_at)
         if type(data_to_write) == list or type(data_to_write) == tuple:
-            self.data += struct.pack(str(len(data_to_write))+data_type, *data_to_write)
+            data = struct.pack(str(len(data_to_write))+data_type, data_to_write)
         else:
-            self.data += struct.pack(data_type, *data_to_write)
+            data = struct.pack(data_type, data_to_write)
+        if overwrite:
+            self.erase(len(data))
+        self.data += data
+        if write_at:
+            self.seek(CurrentPos)
 
 class FileJCNS:
     def __init__(self):
@@ -147,10 +160,47 @@ class FileJCNS:
 
 class ExtraJointInfo:
     def __init__(self):
-        self.Name  =  ""
-        self.Bones = []
+        self.Name         =  ""
+        self.Bone1        =  ""
+        self.Bone2        =  ""
+        self.UNKNOWN_0    =  0.0
+        self.UNKNOWN_1    =  0.0
+        self.UNKNOWN_2    =  0.0
+        self.UNKNOWN_3    =  0.0
+
+        self.UNKNOWN_4_0  =  0.0
+        self.UNKNOWN_4_1  =  0.0
+        self.UNKNOWN_4_2  =  0.0
+        self.UNKNOWN_4_3  =  0.0
+
+        self.UNKNOWN_5    =  0.0
+        self.UNKNOWN_6    =  0
+        self.UNKNOWN_7    =  0
+        self.UNKNOWN_8    =  0
+
+        self.JointVer     =  1
+
     def read(self, FileBuffer: FileBufferJCNS):
-        self.Name  = ""
+        self.Name       =  BinaryUtils.readWString(FileBuffer, True)
+        self.Bone1      =  BinaryUtils.readWString(FileBuffer, True)
+        self.Bone2      =  BinaryUtils.readWString(FileBuffer, True)
+        self.UNKNOWN_0  =  BinaryUtils.readFloat32(FileBuffer)
+        self.UNKNOWN_1  =  BinaryUtils.readFloat32(FileBuffer)
+        self.UNKNOWN_2  =  BinaryUtils.readFloat32(FileBuffer)
+        self.UNKNOWN_3  =  BinaryUtils.readFloat32(FileBuffer)
+
+        if FileBuffer.version > 12:
+            self.UNKNOWN_4_0  =  BinaryUtils.readFloat32(FileBuffer)
+            self.UNKNOWN_4_1  =  BinaryUtils.readFloat32(FileBuffer)
+            self.UNKNOWN_4_2  =  BinaryUtils.readFloat32(FileBuffer)
+            self.UNKNOWN_4_3  =  BinaryUtils.readFloat32(FileBuffer)
+            self.JointVer     =  2
+
+        FileBuffer.cursor += 12
+        self.UNKNOWN_5  =  BinaryUtils.readFloat32(FileBuffer)
+        self.UNKNOWN_6  =  BinaryUtils.readUInt16(FileBuffer)
+        self.UNKNOWN_7  =  BinaryUtils.readUInt16(FileBuffer)
+        self.UNKNOWN_8  =  BinaryUtils.readUInt32(FileBuffer)
 
         return self
         
@@ -264,6 +314,7 @@ class ConstraintSource_V2:
         self.ToRange             =  []
         self.UNKNOWN_7           =  Vec4()
 
+        self.SrcVer              =  2
         self.ExtraInfoList       =  []
         self.Type                =  1
         self.ArmatureName        =  ""
@@ -310,34 +361,37 @@ class ConstraintSource_V1:
         self.Name                =  ""
         self.FromRange           =  []
         self.ToRange             =  []
+        self.UNKNOWN_0           =  0
         self.UNKNOWN_1           =  0
-        self.TransformationType  =  0
         self.TransformationAxis  =  0
         self.UNKNOWN_2           =  0
         self.UNKNOWN_3           =  0
         self.UNKNOWN_4           =  0
         self.UNKNOWN_5           =  0
         self.UNKNOWN_6           =  0
-        self.UNKNOWN_7           =  Vec4()
+        self.UNKNOWN_8           =  Vec4()
 
+        self.SrcVer              =  1
         self.Type                =  1
         self.ArmatureName        =  ""
         self.BoneName            =  ""
+
+        self.ExtraInfoList       =  []  # Prevent exceptions. There's no such stuff there.
 
     def read(self, FileBuffer: FileBufferJCNS):
         self.Name                =  BinaryUtils.readWString(FileBuffer, isOffset=True)
         FileBuffer.cursor += 4
         self.FromRange           =  [BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer)]
         self.ToRange             =  [BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer)]
+        self.UNKNOWN_0           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_1           =  BinaryUtils.readUInt8(FileBuffer)
-        self.TransformationType  =  BinaryUtils.readUInt8(FileBuffer)
         self.TransformationAxis  =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_2           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_3           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_4           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_5           =  BinaryUtils.readUInt8(FileBuffer)
         self.UNKNOWN_6           =  BinaryUtils.readUInt8(FileBuffer)
-        self.UNKNOWN_7           =  Vec4(BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer))
+        self.UNKNOWN_8           =  Vec4(BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer), BinaryUtils.readFloat32(FileBuffer))
         FileBuffer.cursor += 4
 
         return self

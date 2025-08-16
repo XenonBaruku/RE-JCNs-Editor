@@ -2,7 +2,7 @@ bl_info = {
     "name": "RE JCNS",
     "author": "XenonValstrax",
     "blender": (2, 93, 0),
-    "version": (0, 0, 3),
+    "version": (0, 0, 4),
     "description": "Import & Export RE Engine Joint Constraints (.jcns.*) files. (Currently Work In Progress)",
     "warning": "",
     "category": "Import-Export",
@@ -12,14 +12,16 @@ import bpy
 from bpy.types import Context, Menu, Panel, Operator
 
 from .INTERFACE.IO import JCNS_Import, JCNS_Export
-from .INTERFACE.PANELS import (JCNS_PT_Constraint_Settings_Panel, 
+from .INTERFACE.PANELS import (JCNS_PT_Joint_Settings_Panel,
+                               JCNS_PT_Constraint_Settings_Panel, 
                                JCNS_PT_Constraint_Extra_Info_Panel,
                                JCNS_PT_ConstraintSrc_Settings_Panel, 
                                JCNS_PT_ConstraintSrc_Extra_Info_Panel,
                                JCNS_PT_SimpleCns_Settings_Panel, 
                                JCNS_PT_SimpleCnsSrc_Settings_Panel,)
 
-from .JCNS.JCNS_PROPERTIES import (ConstraintSettings_Properties, 
+from .JCNS.JCNS_PROPERTIES import (JointSettings_Properties, 
+                                   ConstraintSettings_Properties, 
                                    ConstraintExtraInfo_Properties,
                                    ConstraintSrcSettings_Properties, 
                                    ConstraintSrcExtraInfo_Properties,
@@ -35,6 +37,7 @@ ClassList = [
     JCNS_Import,
     JCNS_Export,
 
+    JCNS_PT_Joint_Settings_Panel,
     JCNS_PT_Constraint_Settings_Panel,
     JCNS_PT_Constraint_Extra_Info_Panel,
     JCNS_PT_ConstraintSrc_Settings_Panel,
@@ -42,6 +45,7 @@ ClassList = [
     JCNS_PT_SimpleCns_Settings_Panel, 
     JCNS_PT_SimpleCnsSrc_Settings_Panel,
 
+    JointSettings_Properties,
     ConstraintSettings_Properties,
     ConstraintExtraInfo_Properties,
     ConstraintSrcSettings_Properties,
@@ -53,6 +57,7 @@ ClassList = [
 def register() -> None:
     for _ in ClassList:
         bpy.utils.register_class(_)
+    bpy.types.Object.joint_settings = bpy.props.PointerProperty(type=JointSettings_Properties)
     bpy.types.Object.constraint_settings = bpy.props.PointerProperty(type=ConstraintSettings_Properties)
     bpy.types.Object.constraint_extra_info = bpy.props.PointerProperty(type=ConstraintExtraInfo_Properties)
     bpy.types.Object.constraint_src_settings = bpy.props.PointerProperty(type=ConstraintSrcSettings_Properties)

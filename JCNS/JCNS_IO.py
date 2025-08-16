@@ -5,6 +5,7 @@ from .JCNS_PARSER import FileJCNS, FileBufferJCNS
 from .UTILS import BlenderUtils, Version2GameDict
 from .EXCEPTIONS import ERROR_Unsupported
 from .JCNS_PROPERTIES import (
+	getJointSettings,
 	getConstraintSettings, 
 	getConstraintExtraInfo,
 	getConstraintSrcSettings,
@@ -12,6 +13,7 @@ from .JCNS_PROPERTIES import (
 	getSimpleCnsSettings,
 	getSimpleCnsSrcSettings,
 
+	setJointSettings,
 	setConstraintSettings, 
 	setConstraintExtraInfo,
 	setConstraintSrcSettings,
@@ -47,6 +49,13 @@ def ImportJCNSFile(filepath, options, collection=None):
 			#BlenderUtils.lockObjTransforms(headerObj)
 			JCNSCollection = BlenderUtils.getJCNSCollection(filename)
 			JCNSCollection.color_tag = "COLOR_04"
+
+			if len(jcns_file.ExtraJointList) > 0:
+				JointCollection = BlenderUtils.getCollection(f"Joints {filename}", JCNSCollection)
+				for Joint in jcns_file.ExtraJointList:
+					JointSettingsObj = BlenderUtils.add_empty(f"Joint_{jcns_file.ExtraJointList.index(Joint)} {Joint.Name}", [("TYPE", "JCNS_JointSettings")], None, JointCollection)
+					getJointSettings(Joint, JointSettingsObj)
+					#BlenderUtils.lockObjTransforms(ConstraintSettingsObj, lockLocation=False)
 
 			if len(jcns_file.ConstraintList) > 0:
 				ConstraintCollection = BlenderUtils.getCollection(f"Constraints {filename}", JCNSCollection)

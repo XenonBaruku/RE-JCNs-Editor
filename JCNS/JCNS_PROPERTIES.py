@@ -48,6 +48,114 @@ def	update_bone_info(self, context):
 				except:
 					pass
 
+
+
+class JointSettings_Properties(bpy.types.PropertyGroup):
+	Name: StringProperty(
+		name = "Name",
+		default = "",
+	)
+	Bone1: StringProperty(
+		name = "Bone1",
+		default = "",
+	)
+	Bone2: StringProperty(
+		name = "Bone2",
+		default = "",
+	)
+	UNKNOWN_0: FloatProperty(
+		name = "UNKNOWN_0",
+		default = 0.0,
+	)
+	UNKNOWN_1: FloatProperty(
+		name = "UNKNOWN_1",
+		default = 0.0,
+	)
+	UNKNOWN_2: FloatProperty(
+		name = "UNKNOWN_2",
+		default = 0.0,
+	)
+	UNKNOWN_3: FloatProperty(
+		name = "UNKNOWN_3",
+		default = 0.0,
+	)
+	UNKNOWN_4_0: FloatProperty(
+		name = "UNKNOWN_4_0",
+		default = 0.0,
+	)
+	UNKNOWN_4_1: FloatProperty(
+		name = "UNKNOWN_4_1",
+		default = 0.0,
+	)
+	UNKNOWN_4_2: FloatProperty(
+		name = "UNKNOWN_4_2",
+		default = 0.0,
+	)
+	UNKNOWN_4_3: FloatProperty(
+		name = "UNKNOWN_4_3",
+		default = 0.0,
+	)
+	UNKNOWN_5: FloatProperty(
+		name = "UNKNOWN_5",
+		default = 0.0,
+	)
+	UNKNOWN_6: IntProperty(
+		name = "UNKNOWN_6",
+		default = 0,
+	)
+	UNKNOWN_7: IntProperty(
+		name = "UNKNOWN_7",
+		default = 0,
+	)
+	UNKNOWN_8: IntProperty(
+		name = "UNKNOWN_8",
+		default = 0,
+	)
+	JointVer: IntProperty(
+		name = "Joint Version",
+		default = 1,
+	)
+
+def getJointSettings(Joint, targetObject):
+	targetObject.joint_settings.JointVer      =  Joint.JointVer
+	targetObject.joint_settings.Name          =  Joint.Name
+	targetObject.joint_settings.Bone1         =  Joint.Bone1
+	targetObject.joint_settings.Bone2         =  Joint.Bone2
+	targetObject.joint_settings.UNKNOWN_0     =  Joint.UNKNOWN_0
+	targetObject.joint_settings.UNKNOWN_1     =  Joint.UNKNOWN_1
+	targetObject.joint_settings.UNKNOWN_2     =  Joint.UNKNOWN_2
+	targetObject.joint_settings.UNKNOWN_3     =  Joint.UNKNOWN_3
+	if Joint.JointVer == 2:
+		targetObject.joint_settings.UNKNOWN_4_0   =  Joint.UNKNOWN_4_0
+		targetObject.joint_settings.UNKNOWN_4_1   =  Joint.UNKNOWN_4_1
+		targetObject.joint_settings.UNKNOWN_4_2   =  Joint.UNKNOWN_4_2
+		targetObject.joint_settings.UNKNOWN_4_3   =  Joint.UNKNOWN_4_3
+	targetObject.joint_settings.UNKNOWN_5     =  Joint.UNKNOWN_5
+	targetObject.joint_settings.UNKNOWN_6     =  Joint.UNKNOWN_6
+	targetObject.joint_settings.UNKNOWN_7     =  Joint.UNKNOWN_7
+	targetObject.joint_settings.UNKNOWN_8     =  Joint.UNKNOWN_8
+
+def setJointSettings(Joint, targetObject):
+	Joint.JointVer      =  targetObject.joint_settings.JointVer
+	Joint.Name          =  targetObject.joint_settings.Name
+	Joint.Bone1         =  targetObject.joint_settings.Bone1
+	Joint.Bone2         =  targetObject.joint_settings.Bone2
+	Joint.UNKNOWN_0     =  targetObject.joint_settings.UNKNOWN_0
+	Joint.UNKNOWN_1     =  targetObject.joint_settings.UNKNOWN_1
+	Joint.UNKNOWN_2     =  targetObject.joint_settings.UNKNOWN_2
+	Joint.UNKNOWN_3     =  targetObject.joint_settings.UNKNOWN_3
+	if targetObject.joint_settings.JointVer == 2:
+		Joint.UNKNOWN_4_0   =  targetObject.joint_settings.UNKNOWN_4_0
+		Joint.UNKNOWN_4_1   =  targetObject.joint_settings.UNKNOWN_4_1
+		Joint.UNKNOWN_4_2   =  targetObject.joint_settings.UNKNOWN_4_2
+		Joint.UNKNOWN_4_3   =  targetObject.joint_settings.UNKNOWN_4_3
+	Joint.UNKNOWN_5     =  targetObject.joint_settings.UNKNOWN_5
+	Joint.UNKNOWN_6     =  targetObject.joint_settings.UNKNOWN_6
+	Joint.UNKNOWN_7     =  targetObject.joint_settings.UNKNOWN_7
+	Joint.UNKNOWN_8     =  targetObject.joint_settings.UNKNOWN_8
+
+
+
 class ConstraintSettings_Properties(bpy.types.PropertyGroup):
 	Type: EnumProperty(
 		name = "Type",
@@ -259,6 +367,10 @@ class ConstraintSrcSettings_Properties(bpy.types.PropertyGroup):
 			("3", "W", ""),
 		]
 	)
+	SrcVer: IntProperty(
+		name = "Source Version",
+		default = 1,
+	)
 	FromRange: FloatVectorProperty(
 		name = "Map From",
 		size = 3,
@@ -335,6 +447,7 @@ def getConstraintSrcSettings(ConstraintSrc, targetObject):
 	targetObject.constraint_src_settings.FromRange           =  (ConstraintSrc.FromRange[0], ConstraintSrc.FromRange[1], ConstraintSrc.FromRange[2])
 	targetObject.constraint_src_settings.ToRange             =  (ConstraintSrc.ToRange[0], ConstraintSrc.ToRange[1], ConstraintSrc.ToRange[2])
 	
+	targetObject.constraint_src_settings.SrcVer     =  ConstraintSrc.SrcVer
 	targetObject.constraint_src_settings.UNKNOWN_0  =  ConstraintSrc.UNKNOWN_0
 	targetObject.constraint_src_settings.UNKNOWN_1  =  ConstraintSrc.UNKNOWN_1
 	targetObject.constraint_src_settings.UNKNOWN_2  =  ConstraintSrc.UNKNOWN_2
@@ -342,7 +455,8 @@ def getConstraintSrcSettings(ConstraintSrc, targetObject):
 	targetObject.constraint_src_settings.UNKNOWN_4  =  ConstraintSrc.UNKNOWN_4
 	targetObject.constraint_src_settings.UNKNOWN_4  =  ConstraintSrc.UNKNOWN_5
 	targetObject.constraint_src_settings.UNKNOWN_6  =  ConstraintSrc.UNKNOWN_6
-	targetObject.constraint_src_settings.UNKNOWN_7  =  ConstraintSrc.UNKNOWN_7
+	if ConstraintSrc.SrcVer == 2:
+		targetObject.constraint_src_settings.UNKNOWN_7  =  ConstraintSrc.UNKNOWN_7
 	targetObject.constraint_src_settings.UNKNOWN_8  =  (ConstraintSrc.UNKNOWN_8.w, ConstraintSrc.UNKNOWN_8.x, ConstraintSrc.UNKNOWN_8.y, ConstraintSrc.UNKNOWN_8.z)
 
 def setConstraintSrcSettings(ConstraintSrc, targetObject):
@@ -351,6 +465,7 @@ def setConstraintSrcSettings(ConstraintSrc, targetObject):
 	ConstraintSrc.TransformationType  =  int(targetObject.constraint_src_settings.TransformationType)
 	ConstraintSrc.TransformationAxis  =  int(targetObject.constraint_src_settings.TransformationAxis)
 	
+	ConstraintSrc.SrcVer              =  targetObject.constraint_src_settings.SrcVer
 	ConstraintSrc.UNKNOWN_0           =  targetObject.constraint_src_settings.UNKNOWN_0
 	ConstraintSrc.UNKNOWN_1           =  targetObject.constraint_src_settings.UNKNOWN_1
 	ConstraintSrc.UNKNOWN_2           =  targetObject.constraint_src_settings.UNKNOWN_2
@@ -358,7 +473,8 @@ def setConstraintSrcSettings(ConstraintSrc, targetObject):
 	ConstraintSrc.UNKNOWN_4           =  targetObject.constraint_src_settings.UNKNOWN_4
 	ConstraintSrc.UNKNOWN_5           =  targetObject.constraint_src_settings.UNKNOWN_5
 	ConstraintSrc.UNKNOWN_6           =  targetObject.constraint_src_settings.UNKNOWN_6
-	ConstraintSrc.UNKNOWN_7           =  targetObject.constraint_src_settings.UNKNOWN_7
+	if targetObject.constraint_src_settings.SrcVer == 2:
+		ConstraintSrc.UNKNOWN_7       =  targetObject.constraint_src_settings.UNKNOWN_7
 	ConstraintSrc.UNKNOWN_8.x         =  targetObject.constraint_src_settings.UNKNOWN_8[1]
 	ConstraintSrc.UNKNOWN_8.y         =  targetObject.constraint_src_settings.UNKNOWN_8[2]
 	ConstraintSrc.UNKNOWN_8.z         =  targetObject.constraint_src_settings.UNKNOWN_8[3]
